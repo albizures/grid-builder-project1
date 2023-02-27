@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
-import { useCopyToClipboard, useTimeoutFn } from "react-use";
-import { js2xml } from "xml-js";
+import { useCopyToClipboard } from "react-use";
+import { xml, XmlDescArray } from "./xml";
 
 function range(size: number) {
   return new Array(size).fill(null);
@@ -17,7 +17,7 @@ function createGrid(width: number, height: number): Grid {
 
 function App() {
   const [sampleId, setSmapleId] = React.useState("1");
-  const [description, setSdescription] = React.useState("1");
+  const [description, setSdescription] = React.useState("Muestra 1");
   const [width, setWidth] = React.useState(10);
   const [height, setHeight] = React.useState(10);
   const [names, setNames] = React.useState<Record<string, string>>({});
@@ -27,13 +27,6 @@ function App() {
   const [grid, setGrid] = React.useState(() => {
     return createGrid(10, 10);
   });
-
-  useTimeoutFn(
-    () => {
-      copyToClipboard("");
-    },
-    copyState.value ? 1000 : undefined
-  );
 
   function updateValues(grid: Grid) {
     const valuesSet = new Set<string>();
@@ -123,157 +116,169 @@ function App() {
     setHeight(value);
   }
 
-  const xml = [
+  // const test: xml.XmlDesc = [{ test: 1 }, { test: 2 }];
+
+  const xmlInput = [
     '<?xml version="1.0"?>',
-    js2xml(
-      {
-        elements: [
-          {
-            type: "element",
-            name: "datosMarte",
-            elements: [
-              {
-                type: "element",
-                name: "listaOrganismos",
-                elements: values.map((value) => {
-                  return {
-                    type: "element",
-                    name: "organismo",
-                    elements: [
-                      {
-                        type: "element",
-                        name: "codigo",
-                        elements: [
-                          {
-                            type: "text",
-                            text: value,
-                          },
-                        ],
-                      },
-                      {
-                        type: "element",
-                        name: "nombre",
-                        elements: [
-                          {
-                            type: "text",
-                            text: names[value],
-                          },
-                        ],
-                      },
-                    ],
-                  };
-                }),
+    xml({
+      datosMarte: [
+        {
+          listaOrganismos: values.map((value) => {
+            return {
+              organismo: {
+                codigo: value,
+                nombre: names[value],
               },
-              {
-                type: "element",
-                name: "listadoMuestras",
-                elements: [
-                  {
-                    type: "element",
-                    name: "muestra",
-                    elements: [
-                      {
-                        type: "element",
-                        name: "codigo",
-                        elements: [
-                          {
-                            type: "text",
-                            text: sampleId,
-                          },
-                        ],
-                      },
-                      {
-                        type: "element",
-                        name: "descripcion",
-                        elements: [
-                          {
-                            type: "text",
-                            text: description,
-                          },
-                        ],
-                      },
-                      {
-                        type: "element",
-                        name: "filas",
-                        elements: [
-                          {
-                            type: "text",
-                            text: height,
-                          },
-                        ],
-                      },
-                      {
-                        type: "element",
-                        name: "columnas",
-                        elements: [
-                          {
-                            type: "text",
-                            text: width,
-                          },
-                        ],
-                      },
-                      {
-                        type: "element",
-                        name: "listadoCeldasVivas",
-                        elements: grid.reduce((current, row, y) => {
-                          return [
-                            ...current,
-                            ...row
-                              .map((value, x) => ({ value, x, y }))
-                              .filter((cell) => cell.value !== null)
-                              .map((cell) => {
-                                return {
-                                  type: "element",
-                                  name: "celdaViva",
-                                  elements: [
-                                    {
-                                      type: "element",
-                                      name: "fila",
-                                      elements: [
-                                        {
-                                          type: "text",
-                                          text: cell.y,
-                                        },
-                                      ],
-                                    },
-                                    {
-                                      type: "element",
-                                      name: "columna",
-                                      elements: [
-                                        {
-                                          type: "text",
-                                          text: cell.x,
-                                        },
-                                      ],
-                                    },
-                                    {
-                                      type: "element",
-                                      name: "codigoOrganismo",
-                                      elements: [
-                                        {
-                                          type: "text",
-                                          text: cell.value,
-                                        },
-                                      ],
-                                    },
-                                  ],
-                                };
-                              }),
-                          ];
-                        }, [] as unknown[]),
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        spaces: 2,
-      }
-    ),
+            };
+          }),
+          listadoMuestras: [
+            {
+              muestra: [
+                {
+                  codigo: sampleId,
+                  descripcion: description,
+                  filas: height,
+                  columnas: width,
+                  celdarVivas: grid.reduce((current, row, y) => {
+                    return [
+                      ...current,
+                      ...row
+                        .map((value, x) => ({ value, x, y }))
+                        .filter((cell) => cell.value !== null)
+                        .map((cell) => {
+                          return {
+                            fila: cell.y,
+                            columna: cell.x,
+                            codigoOrganismo: cell.value,
+                          };
+                        }),
+                    ];
+                  }, [] as XmlDescArray),
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }),
+    // js2xml(
+    //   {
+    //     elements: [
+    //       {
+    //         type: "element",
+    //         name: "datosMarte",
+    //         elements: [
+    //
+    //           {
+    //             type: "element",
+    //             name: "listadoMuestras",
+    //             elements: [
+    //               {
+    //                 type: "element",
+    //                 name: "muestra",
+    //                 elements: [
+    //                   {
+    //                     type: "element",
+    //                     name: "codigo",
+    //                     elements: [
+    //                       {
+    //                         type: "text",
+    //                         text: sampleId,
+    //                       },
+    //                     ],
+    //                   },
+    //                   {
+    //                     type: "element",
+    //                     name: "descripcion",
+    //                     elements: [
+    //                       {
+    //                         type: "text",
+    //                         text: description,
+    //                       },
+    //                     ],
+    //                   },
+    //                   {
+    //                     type: "element",
+    //                     name: "filas",
+    //                     elements: [
+    //                       {
+    //                         type: "text",
+    //                         text: height,
+    //                       },
+    //                     ],
+    //                   },
+    //                   {
+    //                     type: "element",
+    //                     name: "columnas",
+    //                     elements: [
+    //                       {
+    //                         type: "text",
+    //                         text: width,
+    //                       },
+    //                     ],
+    //                   },
+    //                   {
+    //                     type: "element",
+    //                     name: "listadoCeldasVivas",
+    //                     elements: grid.reduce((current, row, y) => {
+    //                       return [
+    //                         ...current,
+    //                         ...row
+    //                           .map((value, x) => ({ value, x, y }))
+    //                           .filter((cell) => cell.value !== null)
+    //                           .map((cell) => {
+    //                             return {
+    //                               type: "element",
+    //                               name: "celdaViva",
+    //                               elements: [
+    //                                 {
+    //                                   type: "element",
+    //                                   name: "fila",
+    //                                   elements: [
+    //                                     {
+    //                                       type: "text",
+    //                                       text: cell.y,
+    //                                     },
+    //                                   ],
+    //                                 },
+    //                                 {
+    //                                   type: "element",
+    //                                   name: "columna",
+    //                                   elements: [
+    //                                     {
+    //                                       type: "text",
+    //                                       text: cell.x,
+    //                                     },
+    //                                   ],
+    //                                 },
+    //                                 {
+    //                                   type: "element",
+    //                                   name: "codigoOrganismo",
+    //                                   elements: [
+    //                                     {
+    //                                       type: "text",
+    //                                       text: cell.value,
+    //                                     },
+    //                                   ],
+    //                                 },
+    //                               ],
+    //                             };
+    //                           }),
+    //                       ];
+    //                     }, [] as unknown[]),
+    //                   },
+    //                 ],
+    //               },
+    //             ],
+    //           },
+    //         ],
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     spaces: 2,
+    //   }
+    // ),
   ].join("\n");
 
   return (
@@ -403,8 +408,8 @@ function App() {
           >
             {copyState.value ? "copied!" : "click to copy"}
           </div>
-          <pre onClick={() => copyToClipboard(xml)}>
-            <code>{xml}</code>
+          <pre onClick={() => copyToClipboard(xmlInput)}>
+            <code>{xmlInput}</code>
           </pre>
         </div>
       </div>
