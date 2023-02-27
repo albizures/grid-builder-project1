@@ -5,7 +5,7 @@ export type XmlDescArray = XmlObject[];
 
 export function xml(input: XmlDesc, indent: string = ""): string {
   if (Array.isArray(input)) {
-    return input.map((item) => xml(item, "  " + indent)).join("\n");
+    return input.map((item) => xml(item, " " + indent)).join("\n");
   }
 
   if (typeof input === "object") {
@@ -20,7 +20,7 @@ export function xml(input: XmlDesc, indent: string = ""): string {
           output.push(
             [
               `${indent}<${key}>`,
-              xml(element, "  " + indent),
+              xml(element, " " + indent),
               `${indent}</${key}>`,
             ].join("\n")
           );

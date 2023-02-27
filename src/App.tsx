@@ -116,8 +116,6 @@ function App() {
     setHeight(value);
   }
 
-  // const test: xml.XmlDesc = [{ test: 1 }, { test: 2 }];
-
   const xmlInput = [
     '<?xml version="1.0"?>',
     xml({
@@ -139,7 +137,7 @@ function App() {
                   descripcion: description,
                   filas: height,
                   columnas: width,
-                  celdarVivas: grid.reduce((current, row, y) => {
+                  listadoCeldasVivas: grid.reduce((current, row, y) => {
                     return [
                       ...current,
                       ...row
@@ -147,9 +145,13 @@ function App() {
                         .filter((cell) => cell.value !== null)
                         .map((cell) => {
                           return {
-                            fila: cell.y,
-                            columna: cell.x,
-                            codigoOrganismo: cell.value,
+                            celdaViva: [
+                              {
+                                fila: cell.y,
+                                columna: cell.x,
+                                codigoOrganismo: cell.value,
+                              },
+                            ],
                           };
                         }),
                     ];
@@ -161,124 +163,6 @@ function App() {
         },
       ],
     }),
-    // js2xml(
-    //   {
-    //     elements: [
-    //       {
-    //         type: "element",
-    //         name: "datosMarte",
-    //         elements: [
-    //
-    //           {
-    //             type: "element",
-    //             name: "listadoMuestras",
-    //             elements: [
-    //               {
-    //                 type: "element",
-    //                 name: "muestra",
-    //                 elements: [
-    //                   {
-    //                     type: "element",
-    //                     name: "codigo",
-    //                     elements: [
-    //                       {
-    //                         type: "text",
-    //                         text: sampleId,
-    //                       },
-    //                     ],
-    //                   },
-    //                   {
-    //                     type: "element",
-    //                     name: "descripcion",
-    //                     elements: [
-    //                       {
-    //                         type: "text",
-    //                         text: description,
-    //                       },
-    //                     ],
-    //                   },
-    //                   {
-    //                     type: "element",
-    //                     name: "filas",
-    //                     elements: [
-    //                       {
-    //                         type: "text",
-    //                         text: height,
-    //                       },
-    //                     ],
-    //                   },
-    //                   {
-    //                     type: "element",
-    //                     name: "columnas",
-    //                     elements: [
-    //                       {
-    //                         type: "text",
-    //                         text: width,
-    //                       },
-    //                     ],
-    //                   },
-    //                   {
-    //                     type: "element",
-    //                     name: "listadoCeldasVivas",
-    //                     elements: grid.reduce((current, row, y) => {
-    //                       return [
-    //                         ...current,
-    //                         ...row
-    //                           .map((value, x) => ({ value, x, y }))
-    //                           .filter((cell) => cell.value !== null)
-    //                           .map((cell) => {
-    //                             return {
-    //                               type: "element",
-    //                               name: "celdaViva",
-    //                               elements: [
-    //                                 {
-    //                                   type: "element",
-    //                                   name: "fila",
-    //                                   elements: [
-    //                                     {
-    //                                       type: "text",
-    //                                       text: cell.y,
-    //                                     },
-    //                                   ],
-    //                                 },
-    //                                 {
-    //                                   type: "element",
-    //                                   name: "columna",
-    //                                   elements: [
-    //                                     {
-    //                                       type: "text",
-    //                                       text: cell.x,
-    //                                     },
-    //                                   ],
-    //                                 },
-    //                                 {
-    //                                   type: "element",
-    //                                   name: "codigoOrganismo",
-    //                                   elements: [
-    //                                     {
-    //                                       type: "text",
-    //                                       text: cell.value,
-    //                                     },
-    //                                   ],
-    //                                 },
-    //                               ],
-    //                             };
-    //                           }),
-    //                       ];
-    //                     }, [] as unknown[]),
-    //                   },
-    //                 ],
-    //               },
-    //             ],
-    //           },
-    //         ],
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     spaces: 2,
-    //   }
-    // ),
   ].join("\n");
 
   return (
@@ -361,7 +245,7 @@ function App() {
                           key={`${x}-${y}`}
                         >
                           <input
-                            className="w-8 h-5 text-center"
+                            className="w-8 h-5 text-center w-full"
                             type="text"
                             value={cell || ""}
                             onChange={(event) =>
